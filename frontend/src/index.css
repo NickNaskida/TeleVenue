@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+	color: var(--tg-theme-text-color);
+	background: var(--tg-theme-bg-color);
+}
+
+.hint{
+	color: var(--tg-theme-hint-color);
+}
+
+.link{
+	color: var(--tg-theme-link-color);
+}
+
+.tg-button {
+	background: var(--tg-theme-button-color);
+	color: var(--tg-theme-button-text-color);
+}
+
+.card {
+  background: var(--tg-theme-bg-color);
+}
