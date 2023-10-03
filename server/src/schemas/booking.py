@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict
 
 from src.schemas.venue import VenueItem
@@ -17,5 +19,6 @@ class BookingItem(BaseModel):
 class BookingCreate(BaseModel):
     venue_id: int
     user_id: int
-    first_name: str
-    last_name: str
+    under_name: str
+    date: date
+    comment: str

@@ -2,6 +2,21 @@
 
 ### Description
 
+### Tech Stack & Libraries
+
+##### Client
+  - React - [Documentation](https://react.dev)
+  - Vite - [Documentation](https://vitejs.dev/guide/)
+  - TailwindCSS - [Documentation](https://tailwindcss.com/docs)
+
+##### Server
+  - Python
+  - FastAPI - Async web framework  [Documentation](https://fastapi.tiangolo.com/)
+  - Aiogram - Async Telegram Bot API framework [Documentation](https://docs.aiogram.dev/en/latest/)
+  - Pydantic - Validation Library [Documentation](https://docs.pydantic.dev/latest/)
+  - SQLAlchemy - ORM [Documentation](https://docs.sqlalchemy.org/en/20/)
+  - SQLite - Database  
+
 ### Project Structure
 ```
 ...

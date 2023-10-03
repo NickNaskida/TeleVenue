@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
-import { Image, Spinner } from "@nextui-org/react";
+import { Image, Spinner, Input } from "@nextui-org/react";
 
 import axiosInstance from "@/services/api";
 import { useTelegram } from "@/hooks/useTelegram";
@@ -14,13 +15,41 @@ const STATUS = {
 };
 
 const BookingIndex = () => {
-  const { tg, queryId } = useTelegram();
+  const { tg } = useTelegram();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const { venueId } = useParams();
   const [venue, setVenue] = useState(null);
   const [status, setStatus] = useState(STATUS.IDLE);
+
+  const { register, handleSubmit } = useForm();
+  const onSubmit = useCallback(
+    (data) => {
+      const abortController = new AbortController();
+
+      // Send required fields
+      axiosInstance.post(`/bookings/${venueId}`, {
+        signal: abortController.signal,
+        _auth: tg.initData,
+        queryId: tg.initData.queryId,
+        under_name: data.under_name,
+        date: data.date,
+        comment: data.comment,
+      });
+    },
+    [venueId, tg]
+  );
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    tg.onEvent("mainButtonClicked", () => {
+      handleSubmit(onSubmit)();
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, [tg, handleSubmit, onSubmit]);
 
   useEffect(() => {
     setStatus(STATUS.LOADING);
@@ -44,23 +73,6 @@ const BookingIndex = () => {
     tg.BackButton.show();
   }, [venueId]);
 
-  // handle main button click
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    tg.onEvent("mainButtonClicked", () => {
-      axiosInstance.post(`/bookings/${venueId}`, {
-        signal: abortController.signal,
-        _auth: tg.initData,
-        queryId: queryId,
-      });
-    });
-
-    return () => {
-      abortController.abort();
-    };
-  }, [tg, venueId]);
-
   // handle back button click
   tg.onEvent("backButtonClicked", () => {
     navigate("/");
@@ -70,14 +82,33 @@ const BookingIndex = () => {
     <section>
       {status === STATUS.SUCCESS ? (
         <>
-          {location.state && (
-            <Image src={location.state.imageUrl} className="w-full h-full" />
-          )}
-          <h1 className="text-2xl pt-2 font-black">{venue.name}</h1>
-          <h2 className="text-sm font-medium hint pb-2">
-            {venue.address}, {venue.city}
-          </h2>
-          <span className="text-sm">{venue.description}</span>
+          <div className="flex flex-row gap-3 mb-4">
+            <Image
+              src={`/images/${venueId}.jpg`}
+              className="w-20 h-20"
+              loading="lazy"
+            />
+            <div className="flex flex-col justify-center">
+              <span className="text-xl font-bold">{venue.name}</span>
+              <span className="text-xs hint mb-1">
+                {venue.address}, {venue.city}
+              </span>
+              <span className="text-xs">{venue.description}</span>
+            </div>
+          </div>
+          <form className="flex flex-col gap-2">
+            <Input
+              variant="bordered"
+              placeholder="Under name"
+              {...register("under_name")}
+            />
+            <Input type="date" variant="bordered" {...register("date")} />
+            <Input
+              variant="bordered"
+              placeholder="comment"
+              {...register("comment")}
+            />
+          </form>
         </>
       ) : status === STATUS.LOADING ? (
         <div className="flex justify-center items-center h-48">
@@ -85,7 +116,7 @@ const BookingIndex = () => {
         </div>
       ) : (
         <div className="flex justify-center items-center h-48">
-          <span className="text-2xl font-bold">Error.</span>
+          <span className="text-2xl font-bold">Error</span>
         </div>
       )}
     </section>

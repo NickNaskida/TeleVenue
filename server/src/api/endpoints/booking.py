@@ -39,8 +39,9 @@ async def book_venue(venue_id: int, request: Request):
     booking = BookingCreate(
         venue_id=venue_id,
         user_id=user.id,
-        first_name=user.first_name,
-        last_name=user.last_name
+        under_name=json_data.get("under_name"),
+        date=json_data.get("date"),
+        comment=json_data.get("comment")
     )
     db_obj = Booking(**booking.model_dump())
 
