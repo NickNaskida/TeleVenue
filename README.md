@@ -1,6 +1,12 @@
 # Venue Booking Mini Application
 
 ### Description
+This is a mini application that allows users to book venues.
+
+Video Demonstration - [demo]()
+
+### Note
+This file contains only the setup of this application. For a detailed explanation of my code see [TUTORIAL.md](TUTORIAL.md)
 
 ### Tech Stack & Libraries
 
@@ -54,7 +60,22 @@
 
 ### Setup
 
-#### Ngrok
+#### Cloning project
+
+1. Clone project
+    ```
+    git clone https://github.com/NickNaskida/TeleVenue.git
+    ```
+2. Navigate to project directory
+    ```
+    cd TeleVenue
+    ```
+   
+#### Telegram Bot Setup
+
+#### Ngrok Setup
+Telegram mini app requires a public url (https) to work. We will use `ngrok` to expose our local server to the internet.
+
 1. Download ngrok from [here](https://ngrok.com/download)
 2. Edit ngrok configuration file 
 ```
@@ -81,9 +102,12 @@ ngrok config check
 ```
 ngrok start --all
 ```
-7. Copy the `forwarding` url for `front` and `back` and ...
+7. Copy the `forwarding` url for `front` and `back` 
 
 ### Common Errors and Troubleshooting
 
 ### Other notes
 - To enable inspect for web app, press settings icon 5 times and turn on `Debug Web App`
+
+### License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
