@@ -7,8 +7,11 @@
 ##### Client
   - React - [Documentation](https://react.dev)
   - Vite - [Documentation](https://vitejs.dev/guide/)
-  - TailwindCSS - [Documentation](https://tailwindcss.com/docs)
-
+  - TailwindCSS - UI & CSS framework [Documentation](https://tailwindcss.com/docs)
+  - React Hook Form - Form state [Documentation](https://react-hook-form.com/get-started)
+  - React Router - Url navigation [Documentation](https://reactrouter.com/en/6.16.0/start/tutorial)  
+  - Axios - Http requests [Documentation](https://axios-http.com/docs/intro)
+  - NextUI - UI components [Documentation](https://nextui.org/docs/getting-started)
 ##### Server
   - Python
   - FastAPI - Async web framework  [Documentation](https://fastapi.tiangolo.com/)
