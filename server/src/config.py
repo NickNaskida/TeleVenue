@@ -10,8 +10,8 @@ class BaseSettings:
     SECRET_KEY = secrets.token_urlsafe(32)
 
     BOT_TOKEN = "6564109746:AAELai-cCPlj8_Rr7b_6ADpUE8KtOxkSnxA"
-    FRONT_BASE_URL = "https://dd94-188-121-217-243.ngrok-free.app"
-    BACK_BASE_URL = "https://4f3f-188-121-217-243.ngrok-free.app"
+    FRONT_BASE_URL = "https://ba79-188-121-217-243.ngrok-free.app"
+    BACK_BASE_URL = "https://382d-188-121-217-243.ngrok-free.app"
 
     SQLALCHEMY_DATABASE_URI = 'sqlite+aiosqlite:///' + os.path.join(BASE_DIR, 'db.sqlite')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

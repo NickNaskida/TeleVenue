@@ -53,6 +53,8 @@ async def book_venue(venue_id: int, request: Request):
     query_id = web_app_init_data.query_id
 
     # Answer web app query
+    confirm_message = f"Booking successful! 🎉\n\nDetails:\nVenue: {db_obj.venue.name}\nAddress: {db_obj.venue.address}, {db_obj.venue.city}\nUnder name: {db_obj.under_name}\nDate: {db_obj.date}\nComment: {db_obj.comment}"
+
     try:
         await bot.answer_web_app_query(
             web_app_query_id=query_id,
@@ -61,7 +63,7 @@ async def book_venue(venue_id: int, request: Request):
                 id=query_id,
                 title="Booking successful!",
                 input_message_content=InputTextMessageContent(
-                    message_text="Booking successful!"
+                    message_text=confirm_message
                 )
             )
         )
