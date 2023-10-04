@@ -22,7 +22,34 @@
 
 ### Project Structure
 ```
-...
+.
+├── server/
+│   ├── migrations         # alembic migrations
+│   ├── scripts            # helper scripts
+│   ├── src/
+│   │   ├── api            # api stuff
+│   │   ├── bot            # bot stuff
+│   │   ├── models         # db models
+│   │   ├── schemas        # data schemas
+│   │   ├── utils          # other
+│   │   ├── app.py         # main app file
+│   │   └── config.py      # app config
+│   ├── alembic.ini
+│   ├── requirements.txt
+│   ├── main.py
+│   └── ...
+└── frontend/
+    ├── public
+    ├── src
+    │   ├── components     # reusable components
+    │   ├── hooks          # custom hooks
+    │   ├── pages          # pages
+    │   ├── services       # api services
+    │   ├── index.css
+    │   └── index.jsx
+    ├── example.env
+    ├── index.html
+    └── ...
 ```
 
 ### Setup
