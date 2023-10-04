@@ -6,7 +6,7 @@ This is a mini application that allows users to book venues.
 Video Demonstration - [demo]()
 
 ### Note
-This file contains only the setup of this application. For a detailed explanation of my code see [TUTORIAL.md](TUTORIAL.md)
+This file contains only the setup of this application. For a more detailed explanation of the app code see [TUTORIAL.md](TUTORIAL.md)
 
 ### Tech Stack & Libraries
 
@@ -76,33 +76,55 @@ This file contains only the setup of this application. For a detailed explanatio
 #### Ngrok Setup
 Telegram mini app requires a public url (https) to work. We will use `ngrok` to expose our local server to the internet.
 
-1. Download ngrok from [here](https://ngrok.com/download)
+1. Download & install ngrok from [here](https://ngrok.com/download)
 2. Edit ngrok configuration file 
-```
-sudo ngrok config edit      
-```
-3. Copy and paste this configuration. Remember to specify your `auth token`
-```
-version: "2"
-authtoken: <your_auth_token> # change this to your auth token
-tunnels:
-  front:
-    addr: 3000
-    proto: http
-  back:
-    addr: 8000
-    proto: http   
-```
+   ```
+   sudo ngrok config edit      
+   ```
+3. Copy and paste this configuration. Remember to specify your `auth token`. You can get your auth token from dashboard [here](https://dashboard.ngrok.com/get-started/your-authtoken)
+   ```
+   version: "2"
+   authtoken: <your_auth_token> # change this to your auth token
+   tunnels:
+     front:
+       addr: 3000
+       proto: http
+     back:
+       addr: 8000
+       proto: http   
+   ```
 4. Save and exit the file: `Ctrl + X, Y, Enter`
 5. Check configuration
-```
-ngrok config check
-```
+   ```
+   ngrok config check
+   ```
 6. Start ngrok
-```
-ngrok start --all
-```
+   ```
+   ngrok start --all
+   ```
 7. Copy the `forwarding` url for `front` and `back` 
+
+#### Configure application
+1. Copy `example.env` file to `.env` in `frontend` directory
+   ```
+   cd frontend
+   cp example.env .env
+   ```
+2. Edit `.env` file and paste the `back` url from ngrok in `VITE_BASE_API_URL` variable
+   ```
+   VITE_BASE_API_URL=<back_url>
+   ```
+3. navigate to server directory
+   ```
+   cd ../server
+   ```
+4. Edit this lines in `src/config.py`
+   
+   ```python
+   BOT_TOKEN = "<your_bot_token>" # change this to your bot token that you obtained from botfather
+   FRONT_BASE_URL = "https://*********.ngrok-free.app" # change this to your front url from ngrok
+   BACK_BASE_URL = "https://*********.ngrok-free.app" # change this to your back url from ngrok
+   ```
 
 ### Common Errors and Troubleshooting
 
