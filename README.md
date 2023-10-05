@@ -6,7 +6,8 @@
 ### Description
 This is a mini application that allows users to book venues.
 
-Video Demonstration - [demo]()
+### Video Demonstration
+<img src="demo.gif" alt="demo video">
 
 ### Tech Stack & Libraries
 
@@ -72,6 +73,18 @@ Video Demonstration - [demo]()
     ```
    
 #### Telegram Bot Setup
+1. Create a new bot using [BotFather](https://t.me/botfather)
+2. Type `/newbot` and follow the instructions
+3. Copy the bot token and save it somewhere. We will need it later
+   ```
+   ...
+   
+   Use this token to access the HTTP API:
+    <your_bot_token>
+   
+   ...
+   ```
+
 
 #### Ngrok Setup
 Telegram mini app requires a public url (https) to work. We will use `ngrok` to expose our local server to the internet.
@@ -93,7 +106,7 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
        addr: 8000
        proto: http   
    ```
-4. Save and exit the file: `Ctrl + X, Y, Enter`
+4. Save and exit the file: `Ctrl + X`, then `Y`, then `Enter`
 5. Check configuration
    ```
    ngrok config check
@@ -102,7 +115,7 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
    ```
    ngrok start --all
    ```
-7. Copy the `forwarding` url for `front` and `back` 
+7. Copy and save somewhere the forwarding url for `front` and `back`. We will need them later.
 
 #### Configure application
 1. Copy `example.env` file to `.env` in `frontend` directory
@@ -114,21 +127,72 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
    ```
    VITE_BASE_API_URL=<back_url>
    ```
-3. navigate to server directory
-   ```
+4. Copy `example.env` file to `.env` in `server` directory
+      ```
    cd ../server
+   cp example.env .env
    ```
-4. Edit this lines in `src/config.py`
+5. Edit `.env` file and paste the `front` and `back` url from ngrok in `FRONT_BASE_URL` and `BACK_BASE_URL` variables respectively. Also paste your bot token in `BOT_TOKEN` variable. Plus set `SECRET_KEY` to any random string
+    ```
+   SECRET_KEY=<secret_key>          # change this to random long string in production
+   BOT_TOKEN=<your_bot_token>       # change this to your bot token that you obtained from botfather
+   FRONT_BASE_URL=https://*********.ngrok-free.app   # change this to your front url from ngrok
+   BACK_BASE_URL=https://*********.ngrok-free.app    # change this to your back url from ngrok
+   ```
+
+#### Run the application
+
+###### frontend
+1. Navigate to `frontend` directory
+   ```
+   cd frontend
+   ```
+2. Install dependencies
+   ```
+    npm install
+    ```
+3. Start the application
+    ```
+    npm run dev
+    ```
+
+###### server
+1. Navigate to `server` directory in separate terminal
+   ```
+   cd server
+   ```
+2. Create virtual environment
+   ```
+   python3 -m venv venv
+   ```
+3. Activate virtual environment
+   ```
+   source venv/bin/activate
+   ```
+4. Install dependencies
+    ```
+    pip install -r requirements.txt
+    ```
+5. Run migrations
+    ```
+    alembic upgrade head
+    ```
+6. Start the application
+   ```
+   python main.py
+   ```
    
-   ```python
-   BOT_TOKEN = "<your_bot_token>" # change this to your bot token that you obtained from botfather
-   FRONT_BASE_URL = "https://*********.ngrok-free.app" # change this to your front url from ngrok
-   BACK_BASE_URL = "https://*********.ngrok-free.app" # change this to your back url from ngrok
-   ```
 
 ### Common Errors and Troubleshooting
 
-### Other notes
+#### Python Related Errors
+
+...
+
+#### CORS Related Errors
+...
+
+### Other Notes
 - To enable inspect for web app, press settings icon 5 times and turn on `Debug Web App`
 
 ### License
