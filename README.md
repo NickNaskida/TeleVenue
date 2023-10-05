@@ -2,16 +2,16 @@
 
 Bot link: [@TeleVenueBot](https://t.me/TeleVenueBot)
 
-### Note
+## Note
 For a **detailed step-by-step guide** of the app development see [TUTORIAL.md](TUTORIAL.md)
 
-### Description
+## Description
 This is a mini application that allows users to book venues.
 
-### Video Demonstration
+## Video Demonstration
 <img src="demo.gif" alt="demo video">
 
-### Tech Stack & Libraries
+## Tech Stack & Libraries
 
 ##### Client
   - React - [Documentation](https://react.dev)
@@ -29,7 +29,7 @@ This is a mini application that allows users to book venues.
   - SQLAlchemy - ORM [Documentation](https://docs.sqlalchemy.org/en/20/)
   - SQLite - Database  
 
-### Project Structure
+## Project Structure
 ```
 .
 ├── server/
@@ -61,7 +61,7 @@ This is a mini application that allows users to book venues.
     └── ...
 ```
 
-### Setup
+## Setup
 
 #### Cloning project
 
@@ -186,7 +186,7 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
    
 #### Enjoy! 🎉🎉
 
-### Common Errors and Troubleshooting
+## Common Errors and Troubleshooting
 
 #### Python Related Errors
 
@@ -195,8 +195,8 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 #### CORS Related Errors
 ...
 
-### Other Notes
+## Other Notes
 - To enable inspect for web app, press settings icon 5 times and turn on `Debug Web App`
 
-### License
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
