@@ -182,6 +182,7 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
    python main.py
    ```
    
+#### Enjoy! 🎉🎉
 
 ### Common Errors and Troubleshooting
 
