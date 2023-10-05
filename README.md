@@ -1,7 +1,9 @@
 # Venue Booking Mini Application
 
-### Author Note
-**This file contains only the setup of this application**. For a more detailed explanation of the app code see [TUTORIAL.md](TUTORIAL.md)
+Bot link: [@TeleVenueBot](https://t.me/TeleVenueBot)
+
+### Note
+For a **detailed step-by-step guide** of the app development see [TUTORIAL.md](TUTORIAL.md)
 
 ### Description
 This is a mini application that allows users to book venues.
