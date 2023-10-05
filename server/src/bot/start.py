@@ -22,7 +22,7 @@ I got you covered! Just send me your location and I'll show you the best places 
 async def command_start(message: Message, bot: Bot, base_url: str):
     await bot.set_chat_menu_button(
         chat_id=message.chat.id,
-        menu_button=MenuButtonWebApp(text="Open Menu", web_app=WebAppInfo(url=f"{base_url}")),
+        menu_button=MenuButtonWebApp(text="See Venues", web_app=WebAppInfo(url=f"{base_url}")),
     )
     await message.answer(
         welcome_message,
