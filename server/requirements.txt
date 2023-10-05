@@ -1,6 +1,11 @@
 # Telegram bot framework
 aiogram==3.1.0
 
+# FastAPI
+fastapi==0.103.2
+pydantic==2.4.2
+pydantic-settings==2.0.3
+
 # FastAPI and Aiogram integration
 aiogram-fastapi-server==0.1.2
 

@@ -1,22 +1,27 @@
 import os
-import secrets
 from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-class BaseSettings:
-    DEBUG = True
-    SECRET_KEY = secrets.token_urlsafe(32)
+class DevSettings(BaseSettings):
+    DEBUG: bool = True
+    SECRET_KEY: str = "NOT_A_SECRET"
 
-    BOT_TOKEN = "6564109746:AAELai-cCPlj8_Rr7b_6ADpUE8KtOxkSnxA"
-    FRONT_BASE_URL = "https://ba79-188-121-217-243.ngrok-free.app"
-    BACK_BASE_URL = "https://382d-188-121-217-243.ngrok-free.app"
+    BOT_TOKEN: str
+    FRONT_BASE_URL: str
+    BACK_BASE_URL: str
 
-    SQLALCHEMY_DATABASE_URI = 'sqlite+aiosqlite:///' + os.path.join(BASE_DIR, 'db.sqlite')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI: str = 'sqlite+aiosqlite:///' + os.path.join(BASE_DIR, 'db.sqlite')
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
 
-    BACKEND_CORS_ORIGINS = [FRONT_BASE_URL]  # Cors origins. Change this to frontend url in production
+    # Environment
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(BASE_DIR, ".env"),
+        env_file_encoding='utf-8'
+    )
 
 
-settings = BaseSettings()
+settings = DevSettings()
