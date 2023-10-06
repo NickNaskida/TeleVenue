@@ -80,7 +80,7 @@ In my project, I also use tailwind and NextUI as the UI framework. You can setup
 
 Now lets initialize telegram mini app in our project, setup styling & create custom hook to work with `window.Telegram.WebApp` object.
 
-###### Adding Telegram Script
+##### Adding Telegram Script
 
 Initialize Telegram mini app [Documentation here](https://core.telegram.org/widgets/login#initialization)
 
@@ -89,7 +89,7 @@ To connect your Mini App to the Telegram client, place the script telegram-web-a
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
    ```
 
-###### Configuring App Styles according to telegram theme
+##### Configuring App Styles according to telegram theme
 
 Mini Apps can adjust the appearance of the interface to match the Telegram user's app in real time. 
 
