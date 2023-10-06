@@ -293,6 +293,9 @@ def create_app():
 
 ```
 
+#### Telegram Bot Related Errors
+- If you get `Unauthorized` error when trying to send messages to your bot, make sure you have specified the correct bot token in backend `.env` file
+
 
 ### Other notes
 - To enable inspect for web app, press settings icon 5 times and turn on `Debug Web App`
