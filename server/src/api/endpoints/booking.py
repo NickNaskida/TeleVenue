@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, HTTPException, Request, Response
 from sqlalchemy import select
 from fastapi_async_sqlalchemy import db
@@ -14,7 +15,7 @@ router = APIRouter()
 
 
 @router.get("/{venue_id}")
-async def get_bookings(venue_id: int) -> list[BookingItem]:
+async def get_bookings(venue_id: int) -> List[BookingItem]:
     """Get bookings of a venue."""
     db_session = db.session
 

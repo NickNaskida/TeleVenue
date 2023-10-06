@@ -7,7 +7,6 @@ from src.schemas.venue import VenueItem
 
 class BookingItem(BaseModel):
     id: int
-    venue_id: int
     user_id: int
     under_name: str
     date: date
