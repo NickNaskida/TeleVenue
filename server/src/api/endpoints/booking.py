@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request, Response
 from sqlalchemy import select
 from fastapi_async_sqlalchemy import db
-from aiogram.utils.web_app import check_webapp_signature, safe_parse_webapp_init_data
+from aiogram.utils.web_app import safe_parse_webapp_init_data
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 
 from src.bot import bot
 from src.config import settings
 from src.models import Booking, Venue
-from src.schemas.booking import BookingItem, BookingCreate
+from src.schemas.booking import BookingCreate
 
 
 router = APIRouter()
