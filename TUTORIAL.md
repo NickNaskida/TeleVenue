@@ -255,9 +255,44 @@ Then lets create the layout component. This component will be used as the main l
    - Notice that I also added the `tg.ready()` (method that informs the Telegram app that the Mini App is ready to be displayed). By wrapping it inside `useEffect` hook, we ensure that this method will be called as soon as the interface is loaded.
 
 
+
 ### Backend side
 
 ### Common Errors and Troubleshooting
+
+#### Python Related Errors
+
+- Virtualenv issues
+   - Make sure you activate virtual environment before installing dependencies and running the app
+   - If you get `ModuleNotFoundError` when running the app, make sure you are in virtual environment and you have installed all dependencies
+- Python Version issues
+   - The project was developed with Python 3.10 but 3.8+ should work too
+   - Make sure you have python 3.8+ installed
+
+#### CORS Related Errors
+
+Cross-Origin Resource Sharing (CORS) is a security feature implemented by web browsers to protect against unauthorized requests from different domains. When developing a web application, you might encounter CORS issues when your front-end code, hosted on one domain, tries to make requests to an API or server on a different domain. To enable these cross-domain requests safely, you need to configure CORS settings in your FastAPI app.
+
+For instance, in this example app I already specified CORS settings in `server/src/app.py` file. CORS origins will auto include `FRONT_BASE_URL`.
+
+```python
+# backend/src/app.py
+
+def create_app():
+   # ...
+   
+   app.add_middleware(
+     CORSMiddleware,
+     allow_origins=[settings.FRONT_BASE_URL],  # Include your urls here to allow CORS issues
+     allow_credentials=True,
+     allow_methods=["*"],
+     allow_headers=["*"],
+   )
+   
+   # ...
+
+```
+
 
 ### Other notes
 - To enable inspect for web app, press settings icon 5 times and turn on `Debug Web App`
