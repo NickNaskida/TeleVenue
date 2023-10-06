@@ -7,10 +7,22 @@ from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from src.bot import bot
 from src.config import settings
 from src.models import Booking, Venue
-from src.schemas.booking import BookingCreate
+from src.schemas.booking import BookingItem, BookingCreate
 
 
 router = APIRouter()
+
+
+@router.get("/{venue_id}")
+async def get_bookings(venue_id: int) -> list[BookingItem]:
+    """Get bookings of a venue."""
+    db_session = db.session
+
+    query = select(Booking).where(Booking.venue_id == venue_id)
+    result = await db_session.execute(query)
+    bookings = result.scalars().all()
+
+    return bookings
 
 
 @router.post("/{venue_id}", status_code=201)

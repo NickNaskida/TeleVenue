@@ -8,9 +8,10 @@ from src.schemas.venue import VenueItem
 class BookingItem(BaseModel):
     id: int
     venue_id: int
-    user_id: str
-    first_name: str
-    last_name: str
+    user_id: int
+    under_name: str
+    date: date
+    comment: str
     venue: VenueItem
 
     model_config = ConfigDict(from_attributes=True)
