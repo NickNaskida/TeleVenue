@@ -104,6 +104,7 @@ const BookingIndex = () => {
             <Input
               variant="bordered"
               label="Reservation Name"
+              labelPlacement="outside"
               placeholder="under name"
               validationState={errors.under_name ? "invalid" : "valid"}
               errorMessage={errors.under_name && errors.under_name.message}
@@ -115,6 +116,7 @@ const BookingIndex = () => {
               type="date"
               variant="bordered"
               label="Reservation Date"
+              labelPlacement="outside"
               validationState={errors.date ? "invalid" : "valid"}
               errorMessage={errors.date && errors.date.message}
               {...register("date", { required: "date is required" })}
@@ -122,6 +124,7 @@ const BookingIndex = () => {
             <Input
               variant="bordered"
               label="Reservation Comment (optional)"
+              labelPlacement="outside"
               placeholder="any comments?"
               {...register("comment")}
             />
