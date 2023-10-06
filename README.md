@@ -22,7 +22,7 @@ This is a mini application that allows users to book venues.
   - Axios - Http requests [Documentation](https://axios-http.com/docs/intro)
   - NextUI - UI components [Documentation](https://nextui.org/docs/getting-started)
 ##### Server
-  - Python
+  - Python 3.9 (3.8+ should work too)
   - FastAPI - Async web framework  [Documentation](https://fastapi.tiangolo.com/)
   - Aiogram - Async Telegram Bot API framework [Documentation](https://docs.aiogram.dev/en/latest/)
   - Pydantic - Validation Library [Documentation](https://docs.pydantic.dev/latest/)

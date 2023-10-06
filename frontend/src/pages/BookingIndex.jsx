@@ -113,6 +113,7 @@ const BookingIndex = () => {
             <Input
               type="date"
               variant="bordered"
+              placeholder="date"
               validationState={errors.date ? "invalid" : "valid"}
               errorMessage={errors.date && errors.date.message}
               {...register("date", { required: "date is required" })}

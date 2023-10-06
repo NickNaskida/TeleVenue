@@ -1,4 +1,4 @@
-# Mini App Development Step-by-Step Guide
+# Mini App Development Step-by-Step Guide With React (Vite) & Python (Aiogram + FastAPI)
 
 ### Telegram Bot Setup
 First before we start creating an application, we need to setup a Telegram bot. This bot will be used to communicate with our application.
