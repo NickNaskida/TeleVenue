@@ -9,7 +9,7 @@ For a **detailed step-by-step guide** of the app development see [TUTORIAL.md](T
 This is a mini application that allows users to book venues.
 
 ## Video Demonstration
-<img src="demo.gif" alt="demo video">
+<img src="demo.gif" alt="demo video" width="50%">
 
 ## Tech Stack & Libraries
 
