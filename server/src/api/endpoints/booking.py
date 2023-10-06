@@ -17,9 +17,14 @@ router = APIRouter()
 async def book_venue(venue_id: int, request: Request):
     """Book a venue."""
     db_session = db.session
+    json_data = await request.json()
+
+    # check if required fields are present
+    required_fields = ["under_name", "date"]
+    if not all(field in json_data for field in required_fields):
+        raise HTTPException(status_code=400, detail="Missing required fields")
 
     # Check sent data validity
-    json_data = await request.json()
     try:
         web_app_init_data = safe_parse_webapp_init_data(
             token=settings.BOT_TOKEN, init_data=json_data.get("_auth")

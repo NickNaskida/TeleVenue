@@ -13,4 +13,4 @@ class Booking(PkBase):
     user_id = Column(String)
     under_name = Column(String)
     date = Column(Date)
-    comment = Column(String)
+    comment = Column(String, nullable=True)

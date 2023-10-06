@@ -22,7 +22,11 @@ const BookingIndex = () => {
   const [venue, setVenue] = useState(null);
   const [status, setStatus] = useState(STATUS.IDLE);
 
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
   const onSubmit = useCallback(
     (data) => {
       const abortController = new AbortController();
@@ -99,13 +103,23 @@ const BookingIndex = () => {
           <form className="flex flex-col gap-2">
             <Input
               variant="bordered"
-              placeholder="Under name"
-              {...register("under_name")}
+              placeholder="under name"
+              validationState={errors.under_name ? "invalid" : "valid"}
+              errorMessage={errors.under_name && errors.under_name.message}
+              {...register("under_name", {
+                required: "under name is required",
+              })}
             />
-            <Input type="date" variant="bordered" {...register("date")} />
+            <Input
+              type="date"
+              variant="bordered"
+              validationState={errors.date ? "invalid" : "valid"}
+              errorMessage={errors.date && errors.date.message}
+              {...register("date", { required: "date is required" })}
+            />
             <Input
               variant="bordered"
-              placeholder="comment"
+              placeholder="comment (optional)"
               {...register("comment")}
             />
           </form>
