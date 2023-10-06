@@ -106,7 +106,7 @@ Let's set global html document theme so NextUI and Tailwind can adjust automatic
      }
      Telegram.WebApp.onEvent('themeChanged', setThemeClass);
      setThemeClass();
- </script>
+</script>
 ```
 
 This script ensures that if Telegram theme changes, our app will adjust accordingly. Moreover, NextUi and TailwindCSS will also adjust accordingly.
@@ -151,7 +151,8 @@ Create a new file  in `src/hooks/` with name `useTelegram.js` and add following 
 const tg = window.Telegram.WebApp;  // access telegram object
 
 export function useTelegram() {
-  const onToggleButton = () => {   // toggle telegram main button
+  // Telegram docs for main button methods - https://core.telegram.org/bots/webapps#mainbutton 
+  const onToggleButton = () => {   // toggle telegram main button.
     if (tg.MainButton.isVisible) {
       tg.MainButton.hide();
     } else {
@@ -160,7 +161,7 @@ export function useTelegram() {
   }
 
   return {
-    onToggleButton,
+    onToggleButton,  // return toggle button function
     tg, // return telegram window object
     user: tg.initDataUnsafe?.user,  // return user data
     queryId: tg.initDataUnsafe?.queryId,  // return query id
