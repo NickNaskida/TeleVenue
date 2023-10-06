@@ -27,6 +27,7 @@ This is a mini application that allows users to book venues.
   - Aiogram - Async Telegram Bot API framework [Documentation](https://docs.aiogram.dev/en/latest/)
   - Pydantic - Validation Library [Documentation](https://docs.pydantic.dev/latest/)
   - SQLAlchemy - ORM [Documentation](https://docs.sqlalchemy.org/en/20/)
+  - Alembic - Alembic [Documentation](https://alembic.sqlalchemy.org/en/latest/)
   - SQLite - Database  
 
 ## Project Structure
