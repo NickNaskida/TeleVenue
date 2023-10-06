@@ -103,27 +103,25 @@ const BookingIndex = () => {
           <form className="flex flex-col gap-2">
             <Input
               variant="bordered"
-              label="Reservation Name"
+              label="Under Name"
               labelPlacement="outside"
-              placeholder="under name"
               validationState={errors.under_name ? "invalid" : "valid"}
               errorMessage={errors.under_name && errors.under_name.message}
               {...register("under_name", {
                 required: "under name is required",
               })}
             />
+            <p>Date</p>
             <Input
               type="date"
               variant="bordered"
-              label="Reservation Date"
-              labelPlacement="outside"
               validationState={errors.date ? "invalid" : "valid"}
               errorMessage={errors.date && errors.date.message}
               {...register("date", { required: "date is required" })}
             />
             <Input
               variant="bordered"
-              label="Reservation Comment (optional)"
+              label="Comment (optional)"
               labelPlacement="outside"
               placeholder="any comments?"
               {...register("comment")}
