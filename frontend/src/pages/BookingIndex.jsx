@@ -103,6 +103,7 @@ const BookingIndex = () => {
           <form className="flex flex-col gap-2">
             <Input
               variant="bordered"
+              label="Reservation Name"
               placeholder="under name"
               validationState={errors.under_name ? "invalid" : "valid"}
               errorMessage={errors.under_name && errors.under_name.message}
@@ -111,17 +112,17 @@ const BookingIndex = () => {
               })}
             />
             <Input
-              type="text"
+              type="date"
               variant="bordered"
-              placeholder="date"
-              onFocus={(e) => (e.target.type = "date")}
+              label="Reservation Date"
               validationState={errors.date ? "invalid" : "valid"}
               errorMessage={errors.date && errors.date.message}
               {...register("date", { required: "date is required" })}
             />
             <Input
               variant="bordered"
-              placeholder="comment (optional)"
+              label="Reservation Comment (optional)"
+              placeholder="any comments?"
               {...register("comment")}
             />
           </form>
