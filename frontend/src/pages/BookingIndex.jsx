@@ -111,9 +111,10 @@ const BookingIndex = () => {
               })}
             />
             <Input
-              type="date"
+              type="text"
               variant="bordered"
               placeholder="date"
+              onFocus={(e) => (e.target.type = "date")}
               validationState={errors.date ? "invalid" : "valid"}
               errorMessage={errors.date && errors.date.message}
               {...register("date", { required: "date is required" })}
