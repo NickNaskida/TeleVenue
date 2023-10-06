@@ -6,6 +6,13 @@
     <title>Venue App</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        function setThemeClass() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        }
+        Telegram.WebApp.onEvent('themeChanged', setThemeClass);
+        setThemeClass();
+    </script>
   </head>
   <body>
     <div id="root"></div>
