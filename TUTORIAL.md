@@ -49,7 +49,7 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 
 ### Client side
 
-##### React Setup with Vite
+#### React Setup with Vite
 This project utilizes React & Vite as the frontend framework. To start developing, follow these steps:
 
 1. Make sure you have Node.js installed. You can download it from [here](https://nodejs.org/en/download/)
@@ -68,7 +68,7 @@ This project utilizes React & Vite as the frontend framework. To start developin
    npm run dev
    ```
    
-##### Tailwind & NextUI Setup
+#### Tailwind & NextUI Setup
 
 In my project, I also use tailwind and NextUI as the UI framework. You can setup them by following these steps:
 
@@ -76,7 +76,7 @@ In my project, I also use tailwind and NextUI as the UI framework. You can setup
 
 2. Then, install NextUI. Follow this straightforward tutorial to setup NextUI - [NextUI Setup Guide](https://nextui.org/docs/guide/installation) (By the way, you already completed step 1 which is installing tailwindcss)
 
-##### Telegram Mini App Initialization
+#### Telegram Mini App Initialization
 
 Now lets initialize telegram mini app in our project, setup styling & create custom hook to work with `window.Telegram.WebApp` object.
 
@@ -139,7 +139,7 @@ body {
 
 You can change class names according to your needs. I used these classes in my project.
 
-##### React Router V6 Setup
+#### React Router V6 Setup
 
 Next lets setup routing. We will use `react-router-dom` version 6 for this.
 
