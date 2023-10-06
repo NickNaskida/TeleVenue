@@ -49,6 +49,8 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 
 ### Client side
 
+Explanation & tutorial for client side. All of this happens inside `frontend` folder. 
+
 #### React Setup with Vite
 This project utilizes React & Vite as the frontend framework. To start developing, follow these steps:
 
@@ -76,7 +78,7 @@ In my project, I also use tailwind and NextUI as the UI framework. You can setup
 
 2. Then, install NextUI. Follow this straightforward tutorial to setup NextUI - [NextUI Setup Guide](https://nextui.org/docs/guide/installation) (By the way, you already completed step 1 which is installing tailwindcss)
 
-#### Telegram Mini App Initialization
+#### Telegram Mini App Integration
 
 Now lets initialize telegram mini app in our project, setup styling & create custom hook to work with `window.Telegram.WebApp` object.
 
@@ -111,7 +113,7 @@ This script ensures that if Telegram theme changes, our app will adjust accordin
 
 Lets also set styles with help of [css variables](https://core.telegram.org/bots/webapps#themeparams) that Telegram provides to us.
 
-Navigate to `frontend/src/index.css` and add following styles
+Navigate to `src/index.css` and add following styles
 
 ```css
 body {
@@ -139,69 +141,117 @@ body {
 
 You can change class names according to your needs. I used these classes in my project.
 
+##### Creating custom React hook to work with Telegram object.
+
+Now lets create a custom hook to work with `window.Telegram.WebApp` object.
+
+Create a new file  in `src/hooks/` with name `useTelegram.js` and add following code
+
+```javascript
+const tg = window.Telegram.WebApp;  // access telegram object
+
+export function useTelegram() {
+  const onToggleButton = () => {   // toggle telegram main button
+    if (tg.MainButton.isVisible) {
+      tg.MainButton.hide();
+    } else {
+      tg.MainButton.show();
+    }
+  }
+
+  return {
+    onToggleButton,
+    tg, // return telegram window object
+    user: tg.initDataUnsafe?.user,  // return user data
+    queryId: tg.initDataUnsafe?.queryId,  // return query id
+  }
+}
+```
+
+Note:
+   - tg is a telegram window object. [Documentation here](https://core.telegram.org/bots/webapps#initializing-mini-apps)
+   - user is a user data object obtained from `WebAppInitData`. [Documentation here](https://core.telegram.org/bots/webapps#webappinitdata)
+   - queryId is A unique identifier for the Mini App session, required for sending messages via the `answerWebAppQuery` method [Documentation here](https://core.telegram.org/bots/webapps#webappinitdata)
+
+I provide minimal functionality in this hook. You can add more functionality according to your needs.
+
 #### React Router V6 Setup
 
 Next lets setup routing. We will use `react-router-dom` version 6 for this.
 
 Here is a detailed tutorial of how to use react-router-dom v6 - [React Router v6 Tutorial](https://reactrouter.com/en/6.16.0/start/tutorial). I will focus on the specific parts only that I used in my project.
 
-1. Navigate to `frontend/src/main.jsx` and configure the router
-```javascript
-import React from "react";
-import ReactDOM from "react-dom/client";
-
-// Import react router
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { NextUIProvider } from "@nextui-org/react";
-
-import "./index.css";
-
-// Route components
-import BaseLayout from "@/pages/BaseLayout.jsx";
-import Index from "@/pages/Index.jsx";
-import BookingIndex from "@/pages/BookingIndex.jsx";
-
-// Initialize react router
-const router = createBrowserRouter([
-  {
-    path: "/",  // base route path
-    element: <BaseLayout />,   // Define main layout component. All child routes will be rendered inside this component
-    children: [
-      { path: "/", element: <Index /> },  // Define index component
-      { path: "/book/:venueId", element: <BookingIndex /> },  // Define booking index component. Notice that it has venueId parameter in the url
-    ],
-  },
-]);
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <NextUIProvider>
-       // add router provider
-      <RouterProvider router={router} />
-    </NextUIProvider>
-  </React.StrictMode>
-);
- 
-```
+1. Navigate to `src/main.jsx` and configure the router
+   ```javascript
+   import React from "react";
+   import ReactDOM from "react-dom/client";
+   
+   // Import react router
+   import { createBrowserRouter, RouterProvider } from "react-router-dom";
+   import { NextUIProvider } from "@nextui-org/react";
+   
+   import "./index.css";
+   
+   // Route components
+   import BaseLayout from "@/pages/BaseLayout.jsx";
+   import Index from "@/pages/Index.jsx";
+   import BookingIndex from "@/pages/BookingIndex.jsx";
+   
+   // Initialize react router
+   const router = createBrowserRouter([
+     {
+       path: "/",  // base route path
+       element: <BaseLayout />,   // Define main layout component. All child routes will be rendered inside this component
+       children: [
+         { path: "/", element: <Index /> },  // Define index component
+         { path: "/book/:venueId", element: <BookingIndex /> },  // Define booking index component. Notice that it has venueId parameter in the url
+       ],
+     },
+   ]);
+   
+   ReactDOM.createRoot(document.getElementById("root")).render(
+     <React.StrictMode>
+       <NextUIProvider>
+          // add router provider
+         <RouterProvider router={router} />
+       </NextUIProvider>
+     </React.StrictMode>
+   );
+    
+   ```
 
 Then lets create the layout component. This component will be used as the main layout for all pages.
 
 2. Navigate to `/src/pages/BaseLayout.jsx` and create the layout component
-```javascript
-import { Outlet } from "react-router-dom";
+   ```javascript
+   import { useEffect } from "react";
+   
+   import { Outlet } from "react-router-dom"
+   
+   import { useTelegram } from "@/hooks/useTelegram";
+   
+   const BaseLayout = () => {
+     const { tg } = useTelegram();  // obtain telegram object from custom hook that we created earlier
+   
+     // Call the ready method as soon as the interface is loaded
+     useEffect(() => {
+       tg.ready();
+     });
+   
+     return (
+       <div
+         className="w-full min-h-screen p-4"
+       >
+         <Outlet />  // Place where child route components will be rendered
+       </div>
+     );
+   }
+   
+   export default BaseLayout;
+   ```
+   - `<Outlet>` is a specific layout component from react-router-dom v6. It will render all child routes inside this component.
 
-const BaseLayout = () => {
-  return (
-    <div
-      className="w-full min-h-screen p-4"
-    >
-      <Outlet /> // This is specifing the place where to render child routes
-    </div>
-  );
-}
-
-export default BaseLayout
-```
+   - Notice that I also added the `tg.ready()` (method that informs the Telegram app that the Mini App is ready to be displayed). By wrapping it inside `useEffect` hook, we ensure that this method will be called as soon as the interface is loaded.
 
 
 ### Backend side
