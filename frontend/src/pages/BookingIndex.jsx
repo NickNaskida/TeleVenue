@@ -105,13 +105,14 @@ const BookingIndex = () => {
               variant="bordered"
               label="Under Name"
               labelPlacement="outside"
+              placeholder="your name"
               validationState={errors.under_name ? "invalid" : "valid"}
               errorMessage={errors.under_name && errors.under_name.message}
               {...register("under_name", {
                 required: "under name is required",
               })}
             />
-            <p>Date</p>
+            <p className="text-small">Date</p>
             <Input
               type="date"
               variant="bordered"
