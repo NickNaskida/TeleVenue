@@ -14,7 +14,7 @@ router = Router()
 welcome_message = """
 Hey! What's up?\n
 Looking where to hang out?\n
-I got you covered! Just send me your location and I'll show you the best places around you.
+I got you covered! Press the button below to find the best places.
 """
 
 
