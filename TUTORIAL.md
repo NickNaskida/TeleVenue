@@ -259,7 +259,7 @@ Now, lets create the index page component. This component will be rendered when 
 ```javascript
 import { useState, useEffect } from 'react'
 
-import apiInstance from '@/services/api'
+import axiosInstance from '@/services/api'
 
 import VenueCard from "@/components/VenueCard";
 import { useTelegram } from '@/hooks/useTelegram';
@@ -271,7 +271,7 @@ const Index = () => {
 
   useEffect(() => {
     const getVenueData = async () => {
-      await apiInstance.get(
+      await axiosInstance.get(
         "/venues/"
       ).then((res) => {
         setVenueData(res.data)
@@ -314,11 +314,11 @@ You should also create a separate axios Instance `src/services/api.js` that auto
 import axios from "axios";
 
 
-const apiInstance = axios.create({
+const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_BASE_API_URL}`
 });
 
-export default apiInstance;
+export default axiosInstance;
 ```
     
         
