@@ -1,30 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
-import apiInstance from '@/services/api'
+import axiosInstance from "@/services/api";
 
 import VenueCard from "@/components/VenueCard";
-import { useTelegram } from '@/hooks/useTelegram';
-
+import { useTelegram } from "@/hooks/useTelegram";
 
 const Index = () => {
-  const { tg, user } = useTelegram();
-  const [venueData, setVenueData] = useState([])
+  const { tg } = useTelegram();
+  const [venueData, setVenueData] = useState([]);
 
   useEffect(() => {
     const getVenueData = async () => {
-      await apiInstance.get(
-        "/venues/"
-      ).then((res) => {
-        setVenueData(res.data)
-      })
-    }
+      await axiosInstance.get("/venues/").then((res) => {
+        setVenueData(res.data);
+      });
+    };
     getVenueData();
 
     // Hide back button
     tg.BackButton.hide();
     // Hide main button
     tg.MainButton.hide();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -38,6 +35,6 @@ const Index = () => {
       </section>
     </>
   );
-}
+};
 
-export default Index
+export default Index;

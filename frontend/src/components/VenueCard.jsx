@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Card, CardHeader, CardFooter, Image, Button } from "@nextui-org/react";

@@ -189,6 +189,13 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 
 ## Common Errors and Troubleshooting
 
+#### NPM package related errors
+
+- if you get missing modules error when running the app, make sure you have installed all dependencies in `frontend` folder
+   ```
+   npm install
+   ```
+
 #### Python Related Errors
 
 - Virtualenv issues
