@@ -320,7 +320,14 @@ const axiosInstance = axios.create({
 
 export default axiosInstance;
 ```
-    
+
+Since, we use environment variable to store base url, we need to create `.env` file in `frontend` directory and add following line to it
+```
+VITE_BASE_API_URL=<back_url>
+```
+
+Replace `<back_url>` with the url that you obtained from ngrok earlier.
+
         
 Next, create a venue card component to display venue data. You can create your own component or use mine. Here is the code for venue card component:
 
@@ -615,7 +622,7 @@ def register_app_routers(app: FastAPI):
     - configure FastAPI app `app = FastAPI(...)`
     - register application routers `register_app_routers(app)`. We will add routers later
     - add SQLAlchemy middleware `app.add_middleware(SQLAlchemyMiddleware, ...)`. This middleware will be used to work with database. [Documentation here](https://pypi.org/project/fastapi-async-sqlalchemy/)
-    - add CORS middleware `app.add_middleware(CORSMiddleware, ...)`. This middleware will be used to handle CORS issues. [Documentation here](https://fastapi.tiangolo.com/tutorial/cors/)
+    - add CORS middleware `app.add_middleware(CORSMiddleware, ...)`. Note that we specify our frontend url from ngrok in allow_origins `allow_origins=[settings.FRONT_BASE_URL]`. [Documentation here](https://fastapi.tiangolo.com/tutorial/cors/)
 
 As you can see we import settings from `src.config` module. Lets create this module.
 
@@ -657,6 +664,15 @@ settings = DevSettings()
     - `SQLALCHEMY_DATABASE_URI` - this is the database url. We use `aiosqlite` library to work with database.
     - All of this variables are loaded from `.env` file. You can read more about `.env` file [here](https://pypi.org/project/python-dotenv/)
       - `model_config` - this is the configuration for `pydantic_settings` library. We specify `.env` file path and encoding here.
+
+Lets also create `.env` file in `src/` folder to store environment variables that we defined above. Add the following lines to `.env` file
+```
+SECRET_KEY=<secret_key>          # change this to random long string in production
+BOT_TOKEN=<your_bot_token>       # change this to your bot token that you obtained from botfather
+FRONT_BASE_URL=https://*********.ngrok-free.app   # change this to your front url from ngrok
+BACK_BASE_URL=https://*********.ngrok-free.app    # change this to your back url from ngrok
+```
+
 
 
 3. Now lets integrate bot with FastAPI app. Navigate to `server/src/bot/__init__.py` and add following code
@@ -818,6 +834,9 @@ def register_app_routers(app: FastAPI):
         - We also add `base_url` variable to dispatcher. This variable will be used to pass base url to bot routers.
         - We also register `on_startup` event that we created earlier to dispatcher.
     - Then, we register bot routers `register_bot_router(dispatcher)`. We loop through all bot routers and register them.
+
+
+
 
 ### Common Errors and Troubleshooting
 
