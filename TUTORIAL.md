@@ -172,7 +172,7 @@ export function useTelegram() {
 Note:
    - tg is a telegram window object. [Documentation here](https://core.telegram.org/bots/webapps#initializing-mini-apps)
    - user is a user data object obtained from `WebAppInitData`. [Documentation here](https://core.telegram.org/bots/webapps#webappinitdata)
-   - queryId is A unique identifier for the Mini App session, required for sending messages via the `answerWebAppQuery` method [Documentation here](https://core.telegram.org/bots/webapps#webappinitdata)
+   - queryId is a unique identifier for the Mini App session, required for sending messages via the `answerWebAppQuery` method [Documentation here](https://core.telegram.org/bots/webapps#webappinitdata)
 
 I provide minimal functionality in this hook. You can add more functionality according to your needs.
 
@@ -535,9 +535,289 @@ Wow! That's a lot of code. Let's break it down.
 
 ### Backend side
 
-...
-...
-...
+Explanation & tutorial for backend side. All of this happens inside `server` folder.
+
+Okay, now lets setup backend side. We will use `FastAPI` as the core backend framework. To start developing, follow these steps:
+
+1. Make sure you have Python 3.8+ installed. You can download it from [here](https://www.python.org/downloads/)
+2. Create a new virtual environment
+    ```
+    python3 -m venv venv
+    ```
+3. Activate virtual environment
+    ```
+    source venv/bin/activate
+    ```
+4. Install dependencies
+    ```
+    pip install -r requirements.txt
+    ```
+
+For this project I use `aiogram` library to work with telegram bot. [Documentation here](https://docs.aiogram.dev/en/latest/)
+
+To combine `FastAPI` and `aiogram` I use [aiogram-fastapi-server](https://github.com/4u-org/aiogram_fastapi_server) library. Also this library has its own [bot template](https://github.com/4u-org/bot-template) that shows how to use the library.
+
+I will not discuss project structure here. You can read about it in [README.md](README.md#tech-stack--libraries)
+
+First lets create app factory function. This function will be used to create FastAPI app.
+
+1. Navigate to `server/src/app.py` and create app factory function
+```python
+import sys
+import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
+
+from src.config import settings
+
+
+def create_app():
+    """Application factory."""
+    # logging configuration
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+    # configure application
+    app = FastAPI(
+        title="Venue Booking API",
+        docs_url="/",
+    )
+
+    # Register application routers
+    register_app_routers(app)
+
+    # Add app middleware
+    app.add_middleware(
+        SQLAlchemyMiddleware,
+        db_url=settings.SQLALCHEMY_DATABASE_URI,
+        engine_args={  # SQLAlchemy engine example setup
+            "echo": True,
+            "pool_pre_ping": True
+        },
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.FRONT_BASE_URL],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    return app
+
+
+def register_app_routers(app: FastAPI):
+    pass
+```
+- Here we do several things
+    - configure basic python logging `logging.basicConfig(level=logging.INFO, stream=sys.stdout)`
+    - configure FastAPI app `app = FastAPI(...)`
+    - register application routers `register_app_routers(app)`. We will add routers later
+    - add SQLAlchemy middleware `app.add_middleware(SQLAlchemyMiddleware, ...)`. This middleware will be used to work with database. [Documentation here](https://pypi.org/project/fastapi-async-sqlalchemy/)
+    - add CORS middleware `app.add_middleware(CORSMiddleware, ...)`. This middleware will be used to handle CORS issues. [Documentation here](https://fastapi.tiangolo.com/tutorial/cors/)
+
+As you can see we import settings from `src.config` module. Lets create this module.
+
+2. Navigate to `server/src/config.py` and create settings module
+```python
+import os
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+class DevSettings(BaseSettings):
+    DEBUG: bool = True
+    SECRET_KEY: str = "NOT_A_SECRET"
+
+    BOT_TOKEN: str
+    FRONT_BASE_URL: str
+    BACK_BASE_URL: str
+
+    SQLALCHEMY_DATABASE_URI: str = 'sqlite+aiosqlite:///' + os.path.join(BASE_DIR, 'db.sqlite')
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
+
+    # Environment
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(BASE_DIR, ".env"),
+        env_file_encoding='utf-8'
+    )
+
+
+settings = DevSettings()
+```
+- Here we use `pydantic_settings` library to load settings from `.env` file. [Documentation here](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
+- Lets break down some things that we define here:
+    - `BOT_TOKEN` - this is the token that we obtained from BotFather earlier
+    - `FRONT_BASE_URL` - this is the url that we obtained from ngrok earlier. It is used to handle CORS issues
+    - `BACK_BASE_URL` - this is the url that we obtained from ngrok earlier. It is used to handle CORS issues
+    - `SQLALCHEMY_DATABASE_URI` - this is the database url. We use `aiosqlite` library to work with database.
+    - All of this variables are loaded from `.env` file. You can read more about `.env` file [here](https://pypi.org/project/python-dotenv/)
+      - `model_config` - this is the configuration for `pydantic_settings` library. We specify `.env` file path and encoding here.
+
+
+3. Now lets integrate bot with FastAPI app. Navigate to `server/src/bot/__init__.py` and add following code
+```python
+from aiogram import Bot
+
+from src.bot import start
+from src.config import settings
+
+
+# Bot initialization
+bot = Bot(token=settings.BOT_TOKEN, parse_mode="HTML")
+
+bot_routers = [start.router]
+```
+- Here we initialize bot with `Bot` class from `aiogram` library. [Documentation here](https://docs.aiogram.dev/en/latest/api/bot.html)
+- We also add bot routers that will handle bot commands.
+
+4. Now lets create bot routers. Navigate to `server/src/bot/start.py` and add following code
+```python
+from aiogram import Bot, Router
+from aiogram.filters import Command
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    MenuButtonWebApp,
+    Message,
+    WebAppInfo,
+)
+
+router = Router()
+
+
+welcome_message = """
+Hey! What's up?\n
+Looking where to hang out?\n
+I got you covered! Press the button below to find the best places.
+"""
+
+
+@router.message(Command("start"))
+async def command_start(message: Message, bot: Bot, base_url: str):
+    await bot.set_chat_menu_button(
+        chat_id=message.chat.id,
+        menu_button=MenuButtonWebApp(text="See Venues", web_app=WebAppInfo(url=f"{base_url}")),
+    )
+    await message.answer(
+        welcome_message,
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="See Venue Listing", web_app=WebAppInfo(url=f"{base_url}")
+                    )
+                ]
+            ]
+        ),
+    )
+```
+- Here we first define bot router from aiogram library `router = Router()`
+- Then we add a handler for `/start` command `@router.message(Command("start"))`. This will listen to every message and execute the function if the message is `/start` command.
+    - Inside the handler we do two things:
+      - We add a button to the chat menu `await bot.set_chat_menu_button(...)`. This button will be visible in the chat menu. [Documentation here](https://docs.aiogram.dev/en/latest/api/methods/set_chat_menu_button.html)
+      - We send a welcome message with an inline button `await message.answer(...)`. This inline button will be visible under the reply message. [Documentation here](https://docs.aiogram.dev/en/latest/api/methods/send_message.html)
+
+5. Now lets add bot to FastAPI app factory. Navigate to `server/src/app.py` and add following code
+```python
+import sys
+import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# add these 3 lines of imports
+from aiogram_fastapi_server import SimpleRequestHandler, setup_application  # NEW
+from aiogram import Bot, Dispatcher   # NEW
+from aiogram.types import MenuButtonWebApp, WebAppInfo  # NEW
+
+from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
+
+from src.config import settings
+
+# import our bot and bot routers
+from src.bot import bot, bot_routers # NEW
+
+
+# Create a startup event handler
+# NEW
+async def on_startup(bot: Bot, base_url: str):   
+    await bot.set_webhook(f"{settings.BACK_BASE_URL}/webhook")
+    await bot.set_chat_menu_button(
+        menu_button=MenuButtonWebApp(text="Book Venue", web_app=WebAppInfo(url=base_url))
+    )
+
+
+def create_app():
+    """Application factory."""
+    # logging configuration
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+    # Configure dispatcher
+    dispatcher = Dispatcher()    # NEW
+    dispatcher["base_url"] = settings.FRONT_BASE_URL  # NEW
+    dispatcher.startup.register(on_startup)   # NEW
+
+    # Register bot routers
+    register_bot_router(dispatcher)  # NEW
+
+    # configure application
+    app = FastAPI(
+        title="Venue Booking API",
+        docs_url="/",
+    )
+
+    # Register application routers
+    register_app_routers(app)
+
+    # Add app middleware
+    app.add_middleware(
+        SQLAlchemyMiddleware,
+        db_url=settings.SQLALCHEMY_DATABASE_URI,
+        engine_args={  # SQLAlchemy engine example setup
+            "echo": True,
+            "pool_pre_ping": True
+        },
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[settings.FRONT_BASE_URL],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Add bot and dispatcher to application
+    # NEW
+    SimpleRequestHandler(
+        dispatcher=dispatcher,
+        bot=bot
+    ).register(app, path="/webhook")
+    setup_application(app, dispatcher, bot=bot)
+
+    return app
+
+
+# add this lines where we loop through bot routers and register them.
+# NEW
+def register_bot_router(dispatcher: Dispatcher):
+    for router in bot_routers:
+        dispatcher.include_router(router)
+
+
+def register_app_routers(app: FastAPI):
+    pass
+```
+- Here we do several things:
+    - First, we configure a bot startup event that sets menu button and webhook.
+    - Then, we configure dispatcher `dispatcher = Dispatcher()`. [Documentation here](https://docs.aiogram.dev/en/latest/dispatcher/dispatcher.html)
+        - We also add `base_url` variable to dispatcher. This variable will be used to pass base url to bot routers.
+        - We also register `on_startup` event that we created earlier to dispatcher.
+    - Then, we register bot routers `register_bot_router(dispatcher)`. We loop through all bot routers and register them.
 
 ### Common Errors and Troubleshooting
 

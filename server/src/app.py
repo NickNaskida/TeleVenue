@@ -76,5 +76,3 @@ def register_bot_router(dispatcher: Dispatcher):
 
 def register_app_routers(app: FastAPI):
     app.include_router(api_router)
-
-
