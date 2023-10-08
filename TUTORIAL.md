@@ -544,6 +544,8 @@ Wow! That's a lot of code. Let's break it down.
 
 Explanation & tutorial for backend side. All of this happens inside `server` folder.
 
+#### Base Setup
+
 Okay, now lets setup backend side. We will use `FastAPI` as the core backend framework. To start developing, follow these steps:
 
 1. Make sure you have Python 3.8+ installed. You can download it from [here](https://www.python.org/downloads/)
@@ -565,6 +567,8 @@ For this project I use `aiogram` library to work with telegram bot. [Documentati
 To combine `FastAPI` and `aiogram` I use [aiogram-fastapi-server](https://github.com/4u-org/aiogram_fastapi_server) library. Also this library has its own [bot template](https://github.com/4u-org/bot-template) that shows how to use the library.
 
 I will not discuss project structure here. You can read about it in [README.md](README.md#tech-stack--libraries)
+
+#### Base FastAPI and Aiogram app Setup
 
 First lets create app factory function. This function will be used to create FastAPI app.
 
@@ -738,6 +742,8 @@ async def command_start(message: Message, bot: Bot, base_url: str):
       - We add a button to the chat menu `await bot.set_chat_menu_button(...)`. This button will be visible in the chat menu. [Documentation here](https://docs.aiogram.dev/en/latest/api/methods/set_chat_menu_button.html)
       - We send a welcome message with an inline button `await message.answer(...)`. This inline button will be visible under the reply message. [Documentation here](https://docs.aiogram.dev/en/latest/api/methods/send_message.html)
 
+Note that both `MenuButtonWebApp` and `InlineKeyboardButton` have `web_app` parameter. [web_app param | aiogram](https://docs.aiogram.dev/uk_UA/latest/api/types/inline_keyboard_button.html#aiogram.types.inline_keyboard_button.InlineKeyboardButton.web_app)
+
 5. Now lets add bot to FastAPI app factory. Navigate to `server/src/app.py` and add following code
 ```python
 import sys
@@ -836,6 +842,180 @@ def register_app_routers(app: FastAPI):
     - Then, we register bot routers `register_bot_router(dispatcher)`. We loop through all bot routers and register them.
 
 
+Okay, now we have a base setup that allows us to handle bot events and API calls. Let's move on to building the actual app.
+
+First, lets create all necessary models and setup database migrations with [alembic](https://alembic.sqlalchemy.org/en/latest/)
+
+#### Creating DB Models
+1. install sqlalchemy if you haven't already
+    ```
+    pip install sqlalchemy
+    ```
+2. Create a base model file `server/src/models/base.py` and add following code:
+```python
+from datetime import datetime
+
+from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy.ext.declarative import as_declarative
+
+
+@as_declarative()
+class PkBase:
+    """Base model with default columns."""
+    id = Column(Integer, primary_key=True, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+```
+- This is a standard sqlalchemy model. `@as_declarative` decorator is used to create a base class for all models. [Documentation here](https://docs.sqlalchemy.org/en/20/orm/mapping_api.html#sqlalchemy.orm.as_declarative)
+- PkBase is the base model that others inherit from. it has 3 properties. `id` is the primary key. `updated_at` and `created_at` are timestamps that are automatically updated when the model is updated or created.
+
+3. Create a venue model file `server/src/models/venue.py` and add following code:
+```python
+from sqlalchemy import Column, String
+
+from src.models.base import PkBase
+
+
+class Venue(PkBase):
+    """Venues model."""
+    __tablename__ = 'venues'
+
+    name = Column(String(255), nullable=False)
+    description = Column(String(600), nullable=False)
+    address = Column(String(255), nullable=False)
+    city = Column(String(255), nullable=False)
+```
+- Here we create a `Venue` model that inherits from `PkBase` model.
+- We also define `__tablename__` property. This property is used to specify the table name in the database.
+
+4. Finally, create a booking model file `server/src/models/booking.py` and add following code:
+```python
+from sqlalchemy import Column, String, Date, ForeignKey
+from sqlalchemy.orm import relationship
+
+from src.models.base import PkBase
+
+
+class Booking(PkBase):
+    """Booking model."""
+    __tablename__ = 'bookings'
+
+    venue_id = Column(String, ForeignKey('venues.id'))
+    venue = relationship('Venue', lazy="selectin")
+    user_id = Column(String)
+    under_name = Column(String)
+    date = Column(Date)
+    comment = Column(String, nullable=True)
+```
+- Here we create a `Booking` model that again inherits from `PkBase` model.
+- We also specify `venue_id` as a foreign key and `venue` as a relationship. [More about SQLAlchemy relationships](https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#relationship-patterns)
+
+5. Also remember to add these models to `server/src/models/__init__.py` file. We need this to ensure that migrations will work properly and see our models.
+```python
+from src.models.venue import Venue
+from src.models.booking import Booking
+```
+
+#### Alembic Setup
+1. Install alembic if you haven't already
+    ```
+    pip install alembic
+    ```
+2. Initialize async alembic migrations in `server` folder
+    ```
+    alembic init -t async migrations
+    ```
+3. The folder named `migrations` will be created. Navigate to `server/migrations/env.py` and add modify the file as follows:
+```python
+import asyncio
+from logging.config import fileConfig
+
+from sqlalchemy import pool, engine_from_config  # UPDATED
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import AsyncEngine  # NEW
+
+from alembic import context
+
+from src.config import settings  # NEW
+from src.models.base import PkBase  # NEW
+
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+config = context.config
+
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# Set metadata
+target_metadata = PkBase.metadata   # UPDATED
+
+target_metadata.naming_convention = {  # NEW
+   "ix": "ix_%(column_0_label)s",
+   "uq": "uq_%(table_name)s_%(column_0_name)s",
+   "ck": "ck_%(table_name)s_%(constraint_name)s",
+   "fk": "fk_%(table_name)s_%(column_0_name)"
+         "s_%(referred_table_name)s",
+   "pk": "pk_%(table_name)s"
+}
+
+
+def run_migrations_offline() -> None:
+    url = settings.SQLALCHEMY_DATABASE_URI  # UPDATED
+    context.configure(
+        url=url,  # UPDATED
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+# Other code ...
+
+
+async def run_async_migrations() -> None:
+    configuration = config.get_section(config.config_ini_section)  # UPDATED
+    configuration["sqlalchemy.url"] = settings.SQLALCHEMY_DATABASE_URI  # UPDATED
+
+    connectable = AsyncEngine(  # NEW
+        engine_from_config(  # UPDATED
+            configuration,  # UPDATED
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
+            future=True,
+        )
+    )
+
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
+
+# Other code ...
+```
+- Here we imported necessary libraries and functions. 
+- Imported `settings` and `PkBase` from `src.config` and `src.models.base` respectively
+- Changed `target_metadata` to `PkBase.metadata`
+- Added naming convention to `target_metadata.naming_convention`. [More about naming convention](https://docs.sqlalchemy.org/en/20/core/constraints.html#constraint-naming-conventions)
+- Also Edited database url in `run_migrations_offline` function
+- Finally, Edited database configuration in `run_async_migrations` function. We provided `AsyncEngine` with custom url in configuration.
+
+4. Running migrations
+- You can run them manually with commands:
+```
+alembic revision --autogenerate -m "init"
+alembic upgrade head
+```
+- Or you can use one of my bash scripts to run them automatically
+```
+sudo bash scripts/linux/migrate.sh
+```
+
+5. Now check your database with visual tool like [DB Browser for SQLite](https://sqlitebrowser.org/). You should see tables created.
+
 
 
 ### Common Errors and Troubleshooting
@@ -855,6 +1035,18 @@ def register_app_routers(app: FastAPI):
 - Python Version issues
    - The project was developed with Python 3.10 but 3.8+ should work too
    - Make sure you have python 3.8+ installed
+
+#### Alembic migrations related errors
+- Migration conflicts and errors
+  - Sometimes your migrations may conflict with each other. To fix this, you can delete sqlite database file and versions folder. After that just run migrations again.
+    ```
+    alembic revision --autogenerate -m "init"
+    alembic upgrade head
+    ```
+- Models aren't seen by alembic. No tables get created.
+  - In this case make sure you inherit from `PkBase` model in your models.
+  - Also if you define another base model, you should import it and any other model(s) in `migrations/env.py` file
+
 
 #### CORS Related Errors
 

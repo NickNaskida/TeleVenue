@@ -205,6 +205,18 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
    - The project was developed with Python 3.10 but 3.8+ should work too
    - Make sure you have python 3.8+ installed
 
+#### Alembic migrations related errors
+- Migration conflicts and errors
+  - Sometimes your migrations may conflict with each other. To fix this, you can delete sqlite database file and versions folder. After that just run migrations again.
+    ```
+    alembic revision --autogenerate -m "init"
+    alembic upgrade head
+    ```
+- Models aren't seen by alembic. No tables get created.
+  - In this case make sure you inherit from `PkBase` model in your models.
+  - Also if you define another base model, you should import it and any other model(s) in `migrations/env.py` file
+
+
 #### CORS Related Errors
 
 Cross-Origin Resource Sharing (CORS) is a security feature implemented by web browsers to protect against unauthorized requests from different domains. When developing a web application, you might encounter CORS issues when your front-end code, hosted on one domain, tries to make requests to an API or server on a different domain. To enable these cross-domain requests safely, you need to configure CORS settings in your FastAPI app.
