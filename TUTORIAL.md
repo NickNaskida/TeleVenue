@@ -1234,7 +1234,15 @@ async def book_venue(venue_id: int, request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 ```
-
+- Here we define two routes with help of `APIRouter` from `fastapi` library. [Documentation here](https://fastapi.tiangolo.com/tutorial/bigger-applications/#apirouter)
+  - first route is `/{venue_id}` and it returns all bookings for a venue
+    - Here we just query the database and return all bookings. Note that we specify return schema with `-> List[BookingItem]`
+  - second route is `/{venue_id}` and it creates a booking for a venue
+    - Here we first get the json data passed to the request.
+    - Then we check if all required fields are present. If not, we raise `HTTPException` with status code 400.
+    - Then we check if the data is valid. We do this with help of [safe_parse_webapp_init_data function from aiogram](https://docs.aiogram.dev/en/dev-3.x/utils/web_app.html). (To validate data received via the Mini App, one should send the data from the Telegram.WebApp.initData field to the bot's backend). [Documentation here](https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app)
+    - Next, we check if the venue exists. If not, we raise `HTTPException` with status code 404.
+    - Finally, we create a booking and save it to the database. We also answer the web app query with help of [bot.answer_web_app_query function from aiogram](https://docs.aiogram.dev/en/dev-3.x/api/methods/answer_web_app_query.html) and query_id that we receive from frontend.
 
 Finally, we have to add these routes to our application. To do this, 
 
@@ -1264,7 +1272,7 @@ from src.api.api import api_router
 def register_app_routers(app: FastAPI):
     app.include_router(api_router)
 ```
-
+- Here we import our global API router and add it to our app with `app.include_router(api_router)`
 
 
 
