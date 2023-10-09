@@ -540,11 +540,15 @@ Wow! That's a lot of code. Let's break it down.
 6. Then, we define `tg.onEvent("backButtonClicked")` event. This event is triggered when user clicks on the back button. We use `useNavigate` hook from `react-router-dom` to navigate to index page.
 7. Finally, we render different components depending on the status of the request. If status is `SUCCESS`, we render the form. If status is `LOADING`, we render the spinner. If status is `ERROR`, we render the error message.
 
+Inside `return` statement we return html with out layout and components.
+    - Here I use some ready components from [NextUI Library](https://nextui.org/docs/guide/introduction).
+        - Input is one of these components and it is simply styled as [documentation](https://nextui.org/docs/components/input) says.
+
 ### Backend side
 
 Explanation & tutorial for backend side. All of this happens inside `server` folder.
 
-#### Base Setup
+#### Environment Setup
 
 Okay, now lets setup backend side. We will use `FastAPI` as the core backend framework. To start developing, follow these steps:
 
@@ -630,7 +634,23 @@ def register_app_routers(app: FastAPI):
 
 As you can see we import settings from `src.config` module. Lets create this module.
 
-2. Navigate to `server/src/config.py` and create settings module
+2. Next, lets create main file with uvicorn server. Crete file `main.py` in `server/` directory and add following code:
+```python
+import uvicorn
+
+from src.app import create_app
+
+app = create_app()
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=8000)
+```
+- Here we import `create_app` function from `src.app` module and create FastAPI app with it.
+- Then we run uvicorn server with this app.
+  - We use localhost as host and 8000 as port. You can change this according to your needs.
+- [Uvicorn Documentation](https://www.uvicorn.org/)
+
+3. Navigate to `server/src/config.py` and create settings module
 ```python
 import os
 from pathlib import Path
@@ -660,7 +680,7 @@ class DevSettings(BaseSettings):
 
 settings = DevSettings()
 ```
-- Here we use `pydantic_settings` library to load settings from `.env` file. [Documentation here](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
+- Here we use `pydantic_settings` library to load settings from `.env` file. Install it with `pip install pydantic-settings` if you haven't already. [Documentation here](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
 - Lets break down some things that we define here:
     - `BOT_TOKEN` - this is the token that we obtained from BotFather earlier
     - `FRONT_BASE_URL` - this is the url that we obtained from ngrok earlier. It is used to handle CORS issues
@@ -678,8 +698,7 @@ BACK_BASE_URL=https://*********.ngrok-free.app    # change this to your back url
 ```
 
 
-
-3. Now lets integrate bot with FastAPI app. Navigate to `server/src/bot/__init__.py` and add following code
+4. Now lets integrate bot with FastAPI app. Navigate to `server/src/bot/__init__.py` and add following code
 ```python
 from aiogram import Bot
 
@@ -695,7 +714,7 @@ bot_routers = [start.router]
 - Here we initialize bot with `Bot` class from `aiogram` library. [Documentation here](https://docs.aiogram.dev/en/latest/api/bot.html)
 - We also add bot routers that will handle bot commands.
 
-4. Now lets create bot routers. Navigate to `server/src/bot/start.py` and add following code
+5. Now lets create bot routers. Navigate to `server/src/bot/start.py` and add following code
 ```python
 from aiogram import Bot, Router
 from aiogram.filters import Command
@@ -744,7 +763,7 @@ async def command_start(message: Message, bot: Bot, base_url: str):
 
 Note that both `MenuButtonWebApp` and `InlineKeyboardButton` have `web_app` parameter. [web_app param | aiogram](https://docs.aiogram.dev/uk_UA/latest/api/types/inline_keyboard_button.html#aiogram.types.inline_keyboard_button.InlineKeyboardButton.web_app)
 
-5. Now lets add bot to FastAPI app factory. Navigate to `server/src/app.py` and add following code
+6. Now lets add bot to FastAPI app factory. Navigate to `server/src/app.py` and add following code
 ```python
 import sys
 import logging
@@ -847,9 +866,9 @@ Okay, now we have a base setup that allows us to handle bot events and API calls
 First, lets create all necessary models and setup database migrations with [alembic](https://alembic.sqlalchemy.org/en/latest/)
 
 #### Creating DB Models
-1. install sqlalchemy if you haven't already
+1. install sqlalchemy 2 if you haven't already. (Make sure you install version 2 because its incompatible with version 1)
     ```
-    pip install sqlalchemy
+    pip install sqlalchemy  
     ```
 2. Create a base model file `server/src/models/base.py` and add following code:
 ```python
@@ -1016,6 +1035,239 @@ sudo bash scripts/linux/migrate.sh
 
 5. Now check your database with visual tool like [DB Browser for SQLite](https://sqlitebrowser.org/). You should see tables created.
 
+#### Creating API
+
+Install pydantic if you haven't already
+```
+pip install pydantic
+```
+
+First, lets create pydantic data validation schemas. Navigate to `server/src/schemas/` and add create following files:
+
+venue.py
+```python
+from pydantic import BaseModel
+
+
+class VenueItem(BaseModel):
+    id: int
+    name: str
+    description: str
+    address: str
+    city: str
+```
+- Here we define `VenueItem` schema. This schema will be used to validate response data.
+  - Its a basic pydantic schema model created according Venue database model fields. [Documentation here](https://pydantic-docs.helpmanual.io/usage/models/)
+
+booking.py
+```python
+from datetime import date
+
+from pydantic import BaseModel, ConfigDict
+
+from src.schemas.venue import VenueItem
+
+
+class BookingItem(BaseModel):
+    id: int
+    user_id: int
+    under_name: str
+    date: date
+    comment: str
+    venue: VenueItem
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BookingCreate(BaseModel):
+    venue_id: int
+    user_id: int
+    under_name: str
+    date: date
+    comment: str
+```
+- Here we define 2 separate models:
+  - `BookingItem` is a response model.
+    - Note that venue will be nested and represented with help of venue model that we created before.
+  - `BookingCreate` is a create booking model. It will help us validated sent data from frontend and write it to database.
+    - Note that venue will be represented with venue id.
+
+Next let's create our API endpoints.
+
+First lets expose venue model. Navigate to `server/src/api/endpoints` and create `venue.py` file. Add following code:
+```python
+from typing import List
+from fastapi import APIRouter
+from sqlalchemy import select
+from fastapi_async_sqlalchemy import db
+
+from src.models.venue import Venue
+from src.schemas.venue import VenueItem
+
+
+router = APIRouter()
+
+
+@router.get("/")
+async def get_venues() -> List[VenueItem]:
+    query = select(Venue)
+    result = await db.session.execute(query)
+    venues = result.scalars().all()
+    return [
+        VenueItem(
+            id=row.id,
+            name=row.name,
+            description=row.description,
+            address=row.address,
+            city=row.city,
+        ) for row in venues
+    ]
+
+
+@router.get("/{venue_id}")
+async def get_venue_by_id(venue_id: int) -> VenueItem:
+    query = select(Venue).where(Venue.id == venue_id)
+    result = await db.session.execute(query)
+    venue = result.scalars().first()
+    return VenueItem(
+        id=venue.id,
+        name=venue.name,
+        description=venue.description,
+        address=venue.address,
+        city=venue.city,
+    )
+```
+- Here we define two routes with help of `APIRouter` from `fastapi` library. [Documentation here](https://fastapi.tiangolo.com/tutorial/bigger-applications/#apirouter)
+  - first route is `/` and it returns all venues
+  - second route is `/{venue_id}` and it returns venue by provided id
+- Note that we query database with SQLAlchemy 2.0 which is pretty similar to actual SQL. 
+- Also notice that we obtain `db.session` from `fastapi_async_sqlalchemy` with help of middleware we added earlier to our `create_app` in `app.py` function.
+
+Now lets expos booking model. Navigate to `server/src/api/endpoints` and create `booking.py` file. Add following code:
+```python
+from typing import List
+from fastapi import APIRouter, HTTPException, Request, Response
+from sqlalchemy import select
+from fastapi_async_sqlalchemy import db
+from aiogram.utils.web_app import safe_parse_webapp_init_data
+from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
+
+from src.bot import bot
+from src.config import settings
+from src.models import Booking, Venue
+from src.schemas.booking import BookingItem, BookingCreate
+
+
+router = APIRouter()
+
+
+@router.get("/{venue_id}")
+async def get_bookings(venue_id: int) -> List[BookingItem]:
+    """Get bookings of a venue."""
+    query = select(Booking).where(Booking.venue_id == venue_id)
+    result = await db.session.execute(query)
+    bookings = result.scalars().all()
+
+    return bookings
+
+
+@router.post("/{venue_id}", status_code=201)
+async def book_venue(venue_id: int, request: Request):
+    """Book a venue."""
+    json_data = await request.json()
+
+    # check if required fields are present
+    required_fields = ["under_name", "date"]
+    if not all(field in json_data for field in required_fields):
+        raise HTTPException(status_code=400, detail="Missing required fields")
+
+    # Check sent data validity
+    try:
+        web_app_init_data = safe_parse_webapp_init_data(
+            token=settings.BOT_TOKEN, init_data=json_data.get("_auth")
+        )
+    except ValueError:
+        return HTTPException(status_code=401, detail="Unauthorized")
+
+    # Check if venue exists
+    query = select(Venue).where(Venue.id == venue_id)
+    result = await db.session.execute(query)
+    venue = result.scalar_one_or_none()
+    if not venue:
+        raise HTTPException(status_code=404, detail="Venue not found")
+
+    # Create booking
+    user = web_app_init_data.user
+    booking = BookingCreate(
+        venue_id=venue_id,
+        user_id=user.id,
+        under_name=json_data.get("under_name"),
+        date=json_data.get("date"),
+        comment=json_data.get("comment")
+    )
+    db_obj = Booking(**booking.model_dump())
+
+    db.session.add(db_obj)
+    await db.session.commit()
+    await db.session.refresh(db_obj)
+
+    # Extract queryId
+    query_id = web_app_init_data.query_id
+
+    # Answer web app query
+    confirm_message = f"Booking successful! 🎉\n\nDetails:\nVenue: {db_obj.venue.name}\nAddress: {db_obj.venue.address}, {db_obj.venue.city}\nUnder name: {db_obj.under_name}\nDate: {db_obj.date}\nComment: {db_obj.comment}"
+
+    try:
+        await bot.answer_web_app_query(
+            web_app_query_id=query_id,
+            result=InlineQueryResultArticle(
+                type="article",
+                id=query_id,
+                title="Booking successful!",
+                input_message_content=InputTextMessageContent(
+                    message_text=confirm_message
+                )
+            )
+        )
+
+        return Response(status_code=201)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+
+Finally, we have to add these routes to our application. To do this, 
+
+Let's create global API router. Navigate to `server/src/api/api.py` and add following code:
+```python
+from fastapi import APIRouter
+
+from src.api.endpoints import venue
+from src.api.endpoints import booking
+
+api_router = APIRouter()
+
+api_router.include_router(venue.router, prefix="/venues", tags=["venues"])
+api_router.include_router(booking.router, prefix="/bookings", tags=["bookings"])
+```
+- Here we create global API router with `APIRouter` from `fastapi` library. Then, we add our endpoint routers with specific prefixes.
+
+Finally, lets add this router to our app.
+
+Now navigate to `server/src/app.py` and add our main API router:
+```python
+from src.api.api import api_router
+
+...
+
+# add these to the bottom of the file
+def register_app_routers(app: FastAPI):
+    app.include_router(api_router)
+```
+
+
+
+
 
 
 ### Common Errors and Troubleshooting
@@ -1035,6 +1287,11 @@ sudo bash scripts/linux/migrate.sh
 - Python Version issues
    - The project was developed with Python 3.10 but 3.8+ should work too
    - Make sure you have python 3.8+ installed
+- Also make sure you have installed everything from `requirements.txt` file
+   ```
+   pip install -r requirements.txt
+   ```
+  - These are base packages that I believe every FastAPI + Aiogram app will need.
 
 #### Alembic migrations related errors
 - Migration conflicts and errors

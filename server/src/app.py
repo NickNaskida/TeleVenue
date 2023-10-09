@@ -10,7 +10,7 @@ from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
 
 from src.config import settings
 from src.bot import bot, bot_routers
-from src.api import api_router
+from src.api.api import api_router
 
 
 async def on_startup(bot: Bot, base_url: str):

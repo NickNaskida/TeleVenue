@@ -17,10 +17,8 @@ router = APIRouter()
 @router.get("/{venue_id}")
 async def get_bookings(venue_id: int) -> List[BookingItem]:
     """Get bookings of a venue."""
-    db_session = db.session
-
     query = select(Booking).where(Booking.venue_id == venue_id)
-    result = await db_session.execute(query)
+    result = await db.session.execute(query)
     bookings = result.scalars().all()
 
     return bookings
@@ -29,7 +27,6 @@ async def get_bookings(venue_id: int) -> List[BookingItem]:
 @router.post("/{venue_id}", status_code=201)
 async def book_venue(venue_id: int, request: Request):
     """Book a venue."""
-    db_session = db.session
     json_data = await request.json()
 
     # check if required fields are present
@@ -47,7 +44,7 @@ async def book_venue(venue_id: int, request: Request):
 
     # Check if venue exists
     query = select(Venue).where(Venue.id == venue_id)
-    result = await db_session.execute(query)
+    result = await db.session.execute(query)
     venue = result.scalar_one_or_none()
     if not venue:
         raise HTTPException(status_code=404, detail="Venue not found")
@@ -63,9 +60,9 @@ async def book_venue(venue_id: int, request: Request):
     )
     db_obj = Booking(**booking.model_dump())
 
-    db_session.add(db_obj)
-    await db_session.commit()
-    await db_session.refresh(db_obj)
+    db.session.add(db_obj)
+    await db.session.commit()
+    await db.session.refresh(db_obj)
 
     # Extract queryId
     query_id = web_app_init_data.query_id
