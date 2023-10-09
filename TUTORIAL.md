@@ -1275,7 +1275,17 @@ def register_app_routers(app: FastAPI):
 - Here we import our global API router and add it to our app with `app.include_router(api_router)`
 
 
+That's it! We are ready to run our app. Make sure you edit necessary variables in `.env` files inside `server` and `frontend` folders.
 
+To run the backend, navigate to `server` folder and run:
+```
+python main.py
+```
+
+To run the frontend, navigate to `frontend` folder and run:
+```
+npm run dev
+```
 
 
 ### Common Errors and Troubleshooting
