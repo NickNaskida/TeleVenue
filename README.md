@@ -202,6 +202,11 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 - Python Version issues
    - The project was developed with Python 3.10 but 3.8+ should work too
    - Make sure you have python 3.8+ installed
+- Also make sure you have installed everything from `requirements.txt` file
+   ```
+   pip install -r requirements.txt
+   ```
+  - These are base packages that I believe every FastAPI + Aiogram app will need.
 
 #### Alembic migrations related errors
 - Migration conflicts and errors
@@ -213,7 +218,6 @@ Telegram mini app requires a public url (https) to work. We will use `ngrok` to 
 - Models aren't seen by alembic. No tables get created.
   - In this case make sure you inherit from `PkBase` model in your models.
   - Also if you define another base model, you should import it and any other model(s) in `migrations/env.py` file
-
 
 #### CORS Related Errors
 
