@@ -1,13 +1,10 @@
 # Venue Booking Mini Application
 
-Bot link: [@TeleVenueBot](https://t.me/TeleVenueBot)
+## Description
+[@TeleVenueBot](https://t.me/TeleVenueBot) – a Mini App that provides a demo flow for booking venue. User is presented with a venue listing where they can browse and see all venues, then book a venue by filling necessary information.
 
 ## Note
 For a **detailed step-by-step guide** of the app development see [TUTORIAL.md](TUTORIAL.md)
-
-## Description
-[@TeleVenueBot](https://t.me/TeleVenueBot) – a Mini App that provides a demo flow for booking venue. User is presented with a venue listing where they can browse and see all venues, then book a venue by filling necessary information. 
-
 
 ## Video Demonstration
 <img src="demo.gif" alt="demo video" width="50%">
